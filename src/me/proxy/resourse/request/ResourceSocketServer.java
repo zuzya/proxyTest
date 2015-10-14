@@ -1,9 +1,11 @@
-package me.proxy.resourse;
+package me.proxy.resourse.request;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+
+import me.proxy.resourse.common.IResourse;
 
 public class ResourceSocketServer implements IResourse {
 
@@ -23,7 +25,7 @@ public class ResourceSocketServer implements IResourse {
 		return server.getOutputStream();	
 	}
 
-	public void writeRequestToResource(final InputStream streamFromClient) throws IOException {
+	public void writeRequestToResource(final InputStream streamFromClient, boolean isRequestStram) throws IOException {
 		
 	    final byte[] request = new byte[1024];
 	    
@@ -60,7 +62,7 @@ public class ResourceSocketServer implements IResourse {
 		
 	}
 
-	public void readResponseFromResource(OutputStream streamToClient) throws IOException {
+	public void readResponseFromResource(OutputStream streamToClient, boolean isRequestStram) throws IOException {
 		
 		byte[] reply = new byte[4096];
 	    final InputStream streamFromResource = getInputStream(); 

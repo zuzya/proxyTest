@@ -8,16 +8,16 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import me.proxy.resourse.ResourceDatabaseStorage;
+import me.proxy.resourse.request.ResourceDBStorage_ToClient;
 
 public class DatabaseConnTest {
 
-	ResourceDatabaseStorage res;
+	ResourceDBStorage_ToClient res;
 	
 	@Before
 	public void init(){
 		
-		res = new ResourceDatabaseStorage();
+		res = new ResourceDBStorage_ToClient();
 	}
 	
 	@Ignore
@@ -25,7 +25,7 @@ public class DatabaseConnTest {
 	public void insertRow_Test() {
 		
 		try {
-			res.insertRow("vasya");
+			res.insertRow("vasya", true);
 		} catch (Exception e) {			
 			e.printStackTrace();
 			fail("Exception throwed");
@@ -33,15 +33,15 @@ public class DatabaseConnTest {
 		
 	}
 	
-	@Test
-	public void readRow_Test() {
-		
-		try {
-			res.readRow(null);
-		} catch (Exception e) {			
-			e.printStackTrace();
-			fail("Exception throwed");
-		}		
-		
-	}
+//	@Test
+//	public void readRow_Test() {
+//		
+//		try {
+//			res.readRow(null);
+//		} catch (Exception e) {			
+//			e.printStackTrace();
+//			fail("Exception throwed");
+//		}		
+//		
+//	}
 }

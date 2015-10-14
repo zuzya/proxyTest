@@ -1,4 +1,4 @@
-package me.proxy.exchange;
+package me.proxy.exchange.dmz;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,24 +7,18 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import me.proxy.resourse.IResourse;
-import me.proxy.resourse.ResourceDatabaseStorage;
-import me.proxy.resourse.ResourceSocketServer;
+import me.proxy.resourse.common.IResourse;
+import me.proxy.resourse.request.ResourceDBStorage_ToClient;
+import me.proxy.resourse.request.ResourceSocketServer;
 
-public class ExchangeProxyServer {
+public class ExchangeProxyDMZ {
 
 	 public static void main(String[] args) throws IOException {
 		    try {
 		    	
-		    //TODO:  config
-		      String host = "localhost";
-		      int remoteport = 8080;
-		      int localport = 8088;
-		      // Print a start-up message
-		      System.out.println("Starting proxy for " + host + ":" + remoteport
-		          + " on port " + localport);
+		      int localport = 8080;
 		      // And start running the server
-		      runServer(host, remoteport, localport); // never returns
+		      runServer(localport); // never returns
 		    } catch (Exception e) {
 		      System.err.println(e);
 		    }
@@ -34,13 +28,12 @@ public class ExchangeProxyServer {
 		   * runs a single-threaded proxy server on
 		   * the specified local port. It never returns.
 		   */
-		  public static void runServer(String host, int remoteport, int localport)
+		  public static void runServer(int localport)
 		      throws IOException {
 		    // Create a ServerSocket to listen for connections with
 		    ServerSocket ss = new ServerSocket(localport);
 
 		    IResourse resource = null;
-		    SocketExchange socketExchenge = new SocketExchange();
 		    
 		    int n = 0;
 		    
@@ -54,23 +47,23 @@ public class ExchangeProxyServer {
 		        final OutputStream streamToClient = client.getOutputStream();
 		       
 //		        resource = new ResourceSocketServer(socketExchenge.createRemoteSocket(host, remoteport, streamToClient, client));
-		        resource = new ResourceDatabaseStorage();
+		        resource = new ResourceDBStorage_ToClient();
 		        
-		        resource.writeRequestToResource(streamFromClient);	    
+		        resource.writeRequestToResource(streamFromClient, true);	    
 
 		    	byte[] reply = new byte[4096];
-			    final InputStream streamFromResource = resource.getInputStream(); 
+			    resource.readResponseFromResource(streamToClient, false);
 				
-				// Read the server's responses
-		        // and pass them back to the client.
-		        int bytesRead;
-		        try {
-		          while ((bytesRead = streamFromResource.read(reply)) != -1) {
-		            streamToClient.write(reply, 0, bytesRead);
-		            streamToClient.flush();
-		          }
-		        } catch (IOException e) {
-		        }
+//				// Read the server's responses
+//		        // and pass them back to the client.
+//		        int bytesRead;
+//		        try {
+//		          while ((bytesRead = streamFromResource.read(reply)) != -1) {
+//		            streamToClient.write(reply, 0, bytesRead);
+//		            streamToClient.flush();
+//		          }
+//		        } catch (IOException e) {
+//		        }
 		        
 		        // The server closed its connection to us, so we close our
 		        // connection to our client.

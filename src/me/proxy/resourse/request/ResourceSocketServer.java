@@ -25,7 +25,7 @@ public class ResourceSocketServer implements IResourse {
 		return server.getOutputStream();	
 	}
 
-	public void writeRequestToResource(final InputStream streamFromClient, boolean isRequestStram) throws IOException {
+	public void writeRequestToResource_From_InputStream(final InputStream streamFromClient, boolean isRequestStram) throws IOException {
 		
 	    final byte[] request = new byte[1024];
 	    
@@ -62,7 +62,7 @@ public class ResourceSocketServer implements IResourse {
 		
 	}
 
-	public void readResponseFromResource(OutputStream streamToClient, boolean isRequestStram) throws IOException {
+	public void readResponseFromResource_To_OutputStream(OutputStream streamToClient, boolean isRequestStram) throws IOException {
 		
 		byte[] reply = new byte[4096];
 	    final InputStream streamFromResource = getInputStream(); 

@@ -10,7 +10,7 @@ public interface IResourse {
 	
 	public OutputStream getOutputStream() throws IOException;
 
-	public void writeRequestToResource(InputStream streamFromClient, boolean isRequestStream) throws IOException;
+	public void writeRequestToResource_From_InputStream(InputStream streamFromClient, boolean isRequestStream) throws IOException;
 
-	public void readResponseFromResource(OutputStream streamToClient, boolean isRequestStream) throws IOException;
+	public void readResponseFromResource_To_OutputStream(OutputStream streamToClient, boolean isRequestStream) throws IOException;
 }

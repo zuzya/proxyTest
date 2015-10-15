@@ -14,7 +14,11 @@ import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-public abstract class ResourceDBStorage  implements IResourse  {
+public class DBStorageWriter extends StreamWriter  {
+
+	public DBStorageWriter(InputStream streamFrom, boolean isRequest) {
+		super(streamFrom, isRequest);
+	}
 
 	protected InputStream inputStream;
 	protected OutputStream outputStream;
@@ -23,27 +27,16 @@ public abstract class ResourceDBStorage  implements IResourse  {
 	private static final String DB_CONNECTION = "jdbc:mysql://localhost:3306/proxydb";
 	private static final String DB_USER = "root";
 	private static final String DB_PASSWORD = "";
-	private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-	
-	public abstract InputStream getInputStream() throws IOException;
-
-	public abstract OutputStream getOutputStream() throws IOException;
-
-	public abstract void writeRequestToResource(InputStream streamFromClient, boolean isRequestStram)
-			throws IOException;
-
-	public abstract void readResponseFromResource(OutputStream streamToClient, boolean isRequestStram)
-			throws IOException;
+	private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");	
 			
 	
-	
-	public static void insertRow(String body, boolean isRequestStram) throws SQLException {
+	public void insertRow(byte[] request) {
 
 		Connection dbConnection = null;
 		PreparedStatement  preparedStatement  = null;
 
 		String tableName = null;
-		if(isRequestStram){
+		if(isRequest){
 			tableName = "REQUEST";
 		} else {
 			tableName = "ANSWER";
@@ -56,7 +49,7 @@ public abstract class ResourceDBStorage  implements IResourse  {
 		try {
 			dbConnection = getDBConnection();
 			preparedStatement = dbConnection.prepareStatement(insertTableSQL);
-			preparedStatement.setString(1, body);
+			preparedStatement.setBytes(1, request);
 
 			System.out.println(insertTableSQL);
 
@@ -72,11 +65,19 @@ public abstract class ResourceDBStorage  implements IResourse  {
 		} finally {
 
 			if (preparedStatement != null) {
-				preparedStatement.close();
+				try {
+					preparedStatement.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 			}
 
 			if (dbConnection != null) {
-				dbConnection.close();
+				try {
+					dbConnection.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 			}
 
 		}

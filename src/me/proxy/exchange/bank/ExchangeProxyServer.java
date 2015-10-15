@@ -8,7 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import me.proxy.resourse.common.IResourse;
-import me.proxy.resourse.request.ResourceDBStorage_ToClient;
+import me.proxy.resourse.request.ResourceWithDBStorage;
 import me.proxy.resourse.request.ResourceSocketServer;
 
 public class ExchangeProxyServer {
@@ -49,7 +49,7 @@ public class ExchangeProxyServer {
 		      try {
 		        // Wait for a connection on the local port		      	
 		    	  
-		        resource = new ResourceDBStorage_ToClient();
+		        resource = new ResourceWithDBStorage();
 		        
 		        final InputStream streamFromClient = resource.getInputStream();
 		        final OutputStream streamToClient = resource.getOutputStream();		       	
@@ -98,7 +98,7 @@ public class ExchangeProxyServer {
 		        };
 		        
 		        t.start();
-		        resource.writeRequestToResource(streamFromServer, false);	    
+		        resource.writeRequestToResource_From_InputStream(streamFromServer, false);	    
 
 		        
 //		     // Read the server's responses

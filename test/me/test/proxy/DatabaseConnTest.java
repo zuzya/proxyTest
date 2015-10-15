@@ -8,29 +8,29 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import me.proxy.resourse.request.ResourceDBStorage_ToClient;
+import me.proxy.resourse.request.ResourceWithDBStorage;
 
 public class DatabaseConnTest {
 
-	ResourceDBStorage_ToClient res;
+	ResourceWithDBStorage res;
 	
 	@Before
 	public void init(){
 		
-		res = new ResourceDBStorage_ToClient();
+		res = new ResourceWithDBStorage();
 	}
 	
 	@Ignore
 	@Test
 	public void insertRow_Test() {
 		
-		try {
-			res.insertRow("vasya", true);
-		} catch (Exception e) {			
-			e.printStackTrace();
-			fail("Exception throwed");
-		}		
-		
+//		try {
+//			res.insertRow("vasya", true);
+//		} catch (Exception e) {			
+//			e.printStackTrace();
+//			fail("Exception throwed");
+//		}		
+//		
 	}
 	
 //	@Test

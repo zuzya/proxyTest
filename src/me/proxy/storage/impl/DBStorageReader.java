@@ -1,4 +1,4 @@
-package me.proxy.resourse.common;
+package me.proxy.storage.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -14,7 +14,9 @@ import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-public class DBStorageReader extends StreamReader  {
+import me.proxy.storage.common.StorageReader;
+
+public class DBStorageReader extends StorageReader  {
 
 	public DBStorageReader(OutputStream streamFrom, boolean isRequest) {
 		super(streamFrom, isRequest);

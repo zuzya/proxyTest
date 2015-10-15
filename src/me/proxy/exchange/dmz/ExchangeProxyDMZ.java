@@ -7,16 +7,19 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import me.proxy.resourse.common.IResourse;
-import me.proxy.resourse.request.ResourceWithDBStorage;
-import me.proxy.resourse.request.ResourceSocketServer;
+import me.proxy.storage.common.IStorage;
+import me.proxy.storage.common.StorageReader;
+import me.proxy.storage.common.StorageWriter;
+import me.proxy.storage.impl.DBStorageReader;
+import me.proxy.storage.impl.DBStorageWriter;
+import me.proxy.storage.impl.ResourceSocketServer;
 
 public class ExchangeProxyDMZ {
 
 	 public static void main(String[] args) throws IOException {
 		    try {
 		    	
-		      int localport = 8080;
+		      int localport = 80;
 		      runServer(localport); 
 		    } catch (Exception e) {
 		    	e.printStackTrace();
@@ -32,10 +35,11 @@ public class ExchangeProxyDMZ {
 	      throws IOException {
 	    // Create a ServerSocket to listen for connections with
 	    ServerSocket ss = new ServerSocket(localport);
-	    IResourse resource = null;
+	    StorageWriter writer = null;
+	    StorageReader reader = null;
 	    
 	    while (true) { 
-	      Socket client = null, server = null;
+	      Socket client = null;
 	      try {
 	        // Wait for a connection on the local port
 	        client = ss.accept();
@@ -45,16 +49,16 @@ public class ExchangeProxyDMZ {
 	        OutputStream streamToClient = client.getOutputStream();
 	       
 	        //TODO: сделать фабрику
-	        //выбираем имлементацию ресурса
-	        resource = new ResourceWithDBStorage();
-	        
-	        //TODO: !!!!!!!!!!!!!!!!!!!!!!!!!! THREAD POOL HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	       
+	     
 	        //пишем поток клиента  в ресурс
-	        resource.writeRequestToResource_From_InputStream(streamFromClient, true);	
+	        writer = new DBStorageWriter(streamFromClient, true);
+	        new Thread(writer).start();
+	        
 	        //забираем данные из ресурса и пишем в поток клиента
-		    resource.readResponseFromResource_To_OutputStream(streamToClient, false);			
-        
+	        reader = new DBStorageReader(streamToClient, false);	        
+	        reader.run();
+	        
+	        
 	        // The server closed its connection to us, so we close our
 	        // connection to our client.
 	        streamToClient.close();
@@ -62,8 +66,6 @@ public class ExchangeProxyDMZ {
 	        System.err.println(e);
 	      } finally {
 	        try {
-	          if (server != null)
-	            server.close();
 	          if (client != null)
 	            client.close();
 	        } catch (IOException e) {

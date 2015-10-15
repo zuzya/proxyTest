@@ -1,4 +1,4 @@
-package me.proxy.resourse.common;
+package me.proxy.storage.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -14,7 +14,9 @@ import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-public class DBStorageWriter extends StreamWriter  {
+import me.proxy.storage.common.StorageWriter;
+
+public class DBStorageWriter extends StorageWriter  {
 
 	public DBStorageWriter(InputStream streamFrom, boolean isRequest) {
 		super(streamFrom, isRequest);
@@ -30,6 +32,7 @@ public class DBStorageWriter extends StreamWriter  {
 	private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");	
 			
 	
+	@Override
 	public void insertRow(byte[] request) {
 
 		Connection dbConnection = null;
@@ -50,8 +53,6 @@ public class DBStorageWriter extends StreamWriter  {
 			dbConnection = getDBConnection();
 			preparedStatement = dbConnection.prepareStatement(insertTableSQL);
 			preparedStatement.setBytes(1, request);
-
-			System.out.println(insertTableSQL);
 
 			// execute insert SQL stetement
 			preparedStatement.executeUpdate();
@@ -81,94 +82,6 @@ public class DBStorageWriter extends StreamWriter  {
 			}
 
 		}
-
-	}
-	
-	public static InputStream readRow(String sessionId, boolean isRequestStram)   {
-
-		Connection dbConnection = null;
-		PreparedStatement  preparedStatement  = null;
-		Statement statement = null;
-		ResultSet rs = null;
-		InputStream stream = null;
-		
-		String tableName = null;
-		if(isRequestStram){
-			tableName = "REQUEST";
-		} else {
-			tableName = "ANSWER";
-		}
-		
-		String insertTableSQL = "SELECT * FROM proxydb." +tableName+ " r WHERE r.Readed = 0 ORDER BY r.DATE LIMIT 1";
-		
-		try {
-			dbConnection = getDBConnection();
-			preparedStatement = dbConnection.prepareStatement(insertTableSQL);
-	
-			while(true){				
-				// execute insert SQL stetement
-				rs = preparedStatement.executeQuery();				
-				
-				if(rs.isBeforeFirst())
-					break;
-			}
-			
-			while(rs.next()){
-				
-				int id = rs.getInt(1);
-				byte[] body = rs.getBytes(3);
-				
-				stream = new ByteArrayInputStream(body);
-				
-				System.out.println(body);
-				
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				String updateTableSQL = "UPDATE proxydb." +tableName+ " SET Readed = 1  WHERE ID = " + id;
-				statement = dbConnection.createStatement();
-				int res = statement.executeUpdate(updateTableSQL);
-				
-				
-				break;
-			}
-			
-
-			
-						
-			System.out.println("Record is readed into REQUEST table!");
-
-			return stream;
-		} catch (SQLException e) {
-
-			System.out.println(e.getMessage());
-
-		} finally {
-
-			if (preparedStatement != null) {
-				try {
-					preparedStatement.close();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-
-			if (dbConnection != null) {
-				try {
-					dbConnection.close();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-
-		}
-		return stream;
 
 	}
 

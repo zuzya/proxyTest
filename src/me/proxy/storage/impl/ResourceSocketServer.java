@@ -1,13 +1,13 @@
-package me.proxy.resourse.request;
+package me.proxy.storage.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
-import me.proxy.resourse.common.IResourse;
+import me.proxy.storage.common.IStorage;
 
-public class ResourceSocketServer implements IResourse {
+public class ResourceSocketServer implements IStorage {
 
 	private Socket server;
 	

@@ -5,7 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
-import me.proxy.resourse.request.ResourceSocketServer;
+
+import me.proxy.storage.impl.ResourceSocketServer;
 
 public class SocketExchange {
 

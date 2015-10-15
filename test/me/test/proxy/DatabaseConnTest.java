@@ -8,16 +8,16 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import me.proxy.resourse.request.ResourceWithDBStorage;
+import me.proxy.storage.common.StorageWriter;
 
 public class DatabaseConnTest {
 
-	ResourceWithDBStorage res;
+	StorageWriter res;
 	
 	@Before
 	public void init(){
 		
-		res = new ResourceWithDBStorage();
+//		res = new StorageWriter();
 	}
 	
 	@Ignore

@@ -19,7 +19,7 @@ public class ExchangeProxyDMZ {
 	 public static void main(String[] args) throws IOException {
 		    try {
 		    	
-		      int localport = 80;
+		      int localport = 8080;
 		      runServer(localport); 
 		    } catch (Exception e) {
 		    	e.printStackTrace();
@@ -53,6 +53,7 @@ public class ExchangeProxyDMZ {
 	        //пишем поток клиента  в ресурс
 	        writer = new DBStorageWriter(streamFromClient, true);
 	        new Thread(writer).start();
+//	        writer.run();
 	        
 	        //забираем данные из ресурса и пишем в поток клиента
 	        reader = new DBStorageReader(streamToClient, false);	        
@@ -61,6 +62,13 @@ public class ExchangeProxyDMZ {
 	        
 	        // The server closed its connection to us, so we close our
 	        // connection to our client.
+	        try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+//	        streamFromClient.close();
 	        streamToClient.close();
 	      } catch (IOException e) {
 	        System.err.println(e);

@@ -43,7 +43,11 @@ public abstract class StorageReader implements Runnable{
         	  streamTo.write(reply, 0, bytesRead);
         	  streamTo.flush();
           }
+          
+          
+          System.out.println("end of client write");
         } catch (IOException e) {
+        	e.printStackTrace();
         }
         
 	}	

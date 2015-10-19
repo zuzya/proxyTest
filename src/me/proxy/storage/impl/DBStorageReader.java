@@ -1,10 +1,13 @@
 package me.proxy.storage.impl;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -23,7 +26,7 @@ public class DBStorageReader extends StorageReader  {
 	}
 
 	protected InputStream inputStream;
-	protected OutputStream outputStream;
+	protected ByteArrayOutputStream outputStream;
 	
 	private static final String DB_DRIVER = "com.mysql.jdbc.Driver";
 	private static final String DB_CONNECTION = "jdbc:mysql://localhost:3306/proxydb";
@@ -41,6 +44,8 @@ public class DBStorageReader extends StorageReader  {
 		ResultSet rs = null;
 		InputStream stream = null;
 		
+		outputStream = new ByteArrayOutputStream();
+		
 		String tableName = null;
 		if(isRequest){
 			tableName = "REQUEST";
@@ -48,11 +53,12 @@ public class DBStorageReader extends StorageReader  {
 			tableName = "ANSWER";
 		}
 		
-		String insertTableSQL = "SELECT * FROM proxydb." +tableName+ " r WHERE r.Readed = 0 ORDER BY r.DATE LIMIT 1";
+		String insertTableSQL = "SELECT * FROM proxydb." +tableName+ " r WHERE r.Readed = 0 ORDER BY r.DATE ";
 		
 		try {
 			dbConnection = getDBConnection();
-			preparedStatement = dbConnection.prepareStatement(insertTableSQL);
+			preparedStatement = dbConnection.prepareStatement(insertTableSQL,ResultSet.TYPE_SCROLL_SENSITIVE,
+	                   ResultSet.CONCUR_UPDATABLE);
 	
 			while(true){				
 				// execute insert SQL stetement
@@ -66,24 +72,25 @@ public class DBStorageReader extends StorageReader  {
 				
 				int id = rs.getInt(1);
 				byte[] body = rs.getBytes(3);
-				
-				stream = new ByteArrayInputStream(body);
-				
-				System.out.println(body);
+//				Blob blob = rs.getBlob(3);
+//				stream = blob.getBinaryStream();
+//				
+//				stream = new ByteArrayInputStream(body); 
 				
 				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					outputStream.write(body);
+				} catch (IOException e1) {
+					e1.printStackTrace();
 				}
 				
-				String updateTableSQL = "UPDATE proxydb." +tableName+ " SET Readed = 1  WHERE ID = " + id;
-				statement = dbConnection.createStatement();
-				int res = statement.executeUpdate(updateTableSQL);
 				
+				System.out.println("Body:  ");
+				System.out.println(new String(body));
 				
-				break;
+				boolean b = rs.getBoolean(5);
+				rs.updateBoolean("Readed", true);
+				rs.updateRow();
+				
 			}
 			
 
@@ -91,7 +98,7 @@ public class DBStorageReader extends StorageReader  {
 						
 			System.out.println("Record is readed into REQUEST table!");
 
-			return stream;
+			return new ByteArrayInputStream(outputStream.toByteArray());
 		} catch (SQLException e) {
 
 			System.out.println(e.getMessage());
@@ -117,7 +124,7 @@ public class DBStorageReader extends StorageReader  {
 			}
 
 		}
-		return stream;
+		return new ByteArrayInputStream(outputStream.toByteArray());
 
 	}
 

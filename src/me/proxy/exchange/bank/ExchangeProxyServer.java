@@ -16,14 +16,14 @@ import me.proxy.storage.impl.ResourceSocketServer;
 
 public class ExchangeProxyServer {
 
-	 private static final String ADRESS = "mkyong.com";
+	 private static final String ADRESS = "okp-vm-sumzport";
 
 	public static void main(String[] args) throws IOException {
 		    try {
 		    	
 		    //TODO:  config
 		      String host = ADRESS;
-		      int remoteport = 80;
+		      int remoteport = 8080;
 		      // Print a start-up message
 		      System.out.println("Starting proxy for " + host + ":" + remoteport);
 		      // And start running the server
@@ -54,7 +54,7 @@ public class ExchangeProxyServer {
 		        // client, disconnect, and continue waiting for connections.
 		        try {
 				        server = new Socket(host, remoteport);
-				        server.setSendBufferSize(512);
+//				        server.setSendBufferSize(512);
 		        } catch (IOException e) {
 //				        PrintWriter out = new PrintWriter(streamToClient);
 //				        out.print("Proxy server cannot connect to " + host + ":"
@@ -67,13 +67,24 @@ public class ExchangeProxyServer {
 		          // Get server streams.
 		        final InputStream streamFromServer = server.getInputStream();
 		        final OutputStream streamToServer = server.getOutputStream();
-		        
+
 		        reader = new DBStorageReader(streamToServer, true);	
 		        reader.run();     		        
-		     		           		      
-	        	writer =  new DBStorageWriter(streamFromServer, false);
-	         	new Thread(writer).start();	
+
+				writer =  new DBStorageWriter(streamFromServer, false);
+				//writer.run();
+				new Thread(writer).start();	
 		        
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				streamToServer.close();
+//				streamFromServer.close();
+				
 		      } catch (IOException e) {
 		        System.err.println(e);
 		      } finally {

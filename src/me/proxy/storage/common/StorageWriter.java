@@ -25,7 +25,8 @@ public abstract class StorageWriter  implements Runnable{
 	 */
 	private void pushToStorage(InputStream streamFrom){		
 		
-	     final byte[] request = new byte[1024];
+	     final byte[] request = new byte[10240];
+//	     request = new byte[1024];
 		 int bytesRead;
          try {
            while ((bytesRead = streamFrom.read(request)) != -1) {
@@ -45,6 +46,9 @@ public abstract class StorageWriter  implements Runnable{
          	  
              System.out.println(new String(request));
            }
+           
+           
+           
          } catch (IOException e) {
          }
 	}	

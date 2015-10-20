@@ -4,18 +4,46 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.util.Iterator;
+import java.util.List;
 
 public abstract class StorageWriter  implements Runnable{
 
 
 	protected InputStream streamFrom;
 	protected boolean isRequest;	
+	protected List<byte[]> data;
 
 	public StorageWriter(InputStream streamFrom, boolean isRequest) {
 		super();
 		this.streamFrom = streamFrom;
 		this.isRequest = isRequest;
 	}
+	
+	public StorageWriter(List<byte[]> data, boolean isRequest) {
+		super();
+		this.data = data;
+		this.isRequest = isRequest;
+	}
+	
+	
+	private void pushToStorage(List<byte[]> data){				     	  
+     
+		Iterator<byte[]> it = data.iterator();
+		while(it.hasNext()){
+			
+			byte[] row = (byte[]) it.next();
+		 	//собственно сам метод вставки
+			insertRow(row);
+		    System.out.println(new String(row));     
+		}
+		
+
+		
+	     
+          
+ 
+	}	
 	
 	/**
 	 * Фигачим в хранилище
@@ -25,7 +53,7 @@ public abstract class StorageWriter  implements Runnable{
 	 */
 	private void pushToStorage(InputStream streamFrom){		
 		
-	     final byte[] request = new byte[10240];
+	     final byte[] request = new byte[1024];
 //	     request = new byte[1024];
 		 int bytesRead;
          try {
@@ -84,6 +112,10 @@ public abstract class StorageWriter  implements Runnable{
 	
 	public void run() {
 		pushToStorage(streamFrom);	
+	}
+	
+	public void run1() {	
+		pushToStorage(data);	
 	}
 
 }

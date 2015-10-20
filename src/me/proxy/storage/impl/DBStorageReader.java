@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 import me.proxy.storage.common.StorageReader;
 
@@ -23,6 +24,10 @@ public class DBStorageReader extends StorageReader  {
 
 	public DBStorageReader(OutputStream streamFrom, boolean isRequest) {
 		super(streamFrom, isRequest);
+	}
+	
+	public DBStorageReader(boolean isRequest) {
+		super(isRequest);
 	}
 
 	protected InputStream inputStream;

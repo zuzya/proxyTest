@@ -40,57 +40,32 @@ public class ExchangeProxyServer {
 		   */
 		  public static void runServer(String host, int remoteport) throws IOException {
 
+			System.out.println("starting connect to remote server");  
+			  
 			StorageWriter writer =  null;
 			StorageReader reader = null;		
 		    
 		    final byte[] request = new byte[1024];
 	  		    
 		    while (true) {
-		      Socket server = null;
-		      try {
-		    
-		    	// Make a connection to the real server.
-		        // If we cannot connect to the server, send an error to the
-		        // client, disconnect, and continue waiting for connections.
-		        try {
-				        server = new Socket(host, remoteport);
-//				        server.setSendBufferSize(512);
-		        } catch (IOException e) {
-//				        PrintWriter out = new PrintWriter(streamToClient);
-//				        out.print("Proxy server cannot connect to " + host + ":"
-//				            + remoteport + ":\n" + e + "\n");
-//				        out.flush();				  
-				        continue;
-		         }
-
-		        
-		          // Get server streams.
-		        final InputStream streamFromServer = server.getInputStream();
-		        final OutputStream streamToServer = server.getOutputStream();
-
-		        reader = new DBStorageReader(streamToServer, true);	
-		        reader.run();     		        
-
-				writer =  new DBStorageWriter(streamFromServer, false);
-				//writer.run();
-				new Thread(writer).start();	
-		        
-				try {
-					Thread.sleep(5000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+		    	try (Socket server = new Socket(host, remoteport)) {
+		    		  
+		    		final InputStream streamFromServer = server.getInputStream();
+				    final OutputStream streamToServer = server.getOutputStream(); 
+		    			
+    			  	reader = new DBStorageReader(streamToServer, true);	
+			        reader.run();     		        
+	
+					writer =  new DBStorageWriter(streamFromServer, false);		
+					new Thread(writer).start();						
 				
-				streamToServer.close();
-//				streamFromServer.close();
+					System.out.println("end of connection to remote server");
+					
+//					streamToServer.close();
 				
-		      } catch (IOException e) {
-		        System.err.println(e);
-		      } finally {
-		    	  	try {     if (server != null)     server.close();      } catch (IOException e) {
-		        }
-		      }
+		       } catch (IOException e) {
+		          System.err.println(e);
+		       }
 		    }
 		        
 		  }

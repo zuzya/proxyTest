@@ -39,45 +39,36 @@ public class ExchangeProxyDMZ {
 	    StorageReader reader = null;
 	    
 	    while (true) { 
-	      Socket client = null;
-	      try {
+	    	
+	      try(Socket client = ss.accept()) {
 	        // Wait for a connection on the local port
-	        client = ss.accept();
-	        
-	        //берем потоки клиента
-	        InputStream streamFromClient = client.getInputStream();
-	        OutputStream streamToClient = client.getOutputStream();
-	       
-	        //TODO: сделать фабрику
-	     
+	      
+	    	OutputStream streamToClient = client.getOutputStream();
+  	        InputStream streamFromClient = client.getInputStream();
+  	      
+			
+    		//TODO: сделать фабрику
+   	     
 	        //пишем поток клиента  в ресурс
 	        writer = new DBStorageWriter(streamFromClient, true);
 	        new Thread(writer).start();
-//	        writer.run();
+		 
 	        
 	        //забираем данные из ресурса и пишем в поток клиента
 	        reader = new DBStorageReader(streamToClient, false);	        
 	        reader.run();
-	        
-	        
+        	
+	        System.out.println("end of coonection");	    	  
+
+	       
+	       
 	        // The server closed its connection to us, so we close our
 	        // connection to our client.
-	        try {
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+	
 //	        streamFromClient.close();
-	        streamToClient.close();
+//	        streamToClient.close();
 	      } catch (IOException e) {
 	        System.err.println(e);
-	      } finally {
-	        try {
-	          if (client != null)
-	            client.close();
-	        } catch (IOException e) {
-	        }
 	      }
 	    }
 	  }

@@ -48,8 +48,8 @@ public abstract class StorageWriter  implements Runnable{
            }
            
            
-           
          } catch (IOException e) {
+        	 e.printStackTrace();
          }
 	}	
 

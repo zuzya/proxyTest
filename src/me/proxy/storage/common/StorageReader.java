@@ -6,11 +6,13 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
 
-public abstract class StorageReader implements Runnable{
+public abstract class StorageReader implements Callable<List<byte[]>>{
 	
 	protected OutputStream streamTo;
 	protected boolean isRequest;
+	protected List<byte[]> data;
 
 	public StorageReader(OutputStream streamTo, boolean isRequest) {
 		super();
@@ -18,9 +20,10 @@ public abstract class StorageReader implements Runnable{
 		this.isRequest = isRequest;
 	}
 	
-	public StorageReader(boolean isRequest) {
+	public StorageReader(boolean isRequest, final List<byte[]> data) {
 		super();
 		this.isRequest = isRequest;
+		this.data = data;
 	}
 	
 	public InputStream getStreamFromStorage(){			
@@ -107,14 +110,10 @@ public abstract class StorageReader implements Runnable{
 	}	
 	
 	
-	protected abstract InputStream readRow();
+	protected abstract InputStream readRow();	
+
 	
-	public void run() {		
-		InputStream streamFrom = getStreamFromStorage();
-		writeDataFromStorage(streamTo, streamFrom);
-	}
-	
-	public List<byte[]> run1() {		
+	public List<byte[]> call() {		
 		InputStream streamFrom = getStreamFromStorage();
 		return writeDataFromStorage(streamFrom);
 	}

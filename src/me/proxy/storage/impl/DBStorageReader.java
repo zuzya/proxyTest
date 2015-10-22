@@ -26,12 +26,13 @@ public class DBStorageReader extends StorageReader  {
 		super(streamFrom, isRequest);
 	}
 	
-	public DBStorageReader(boolean isRequest) {
-		super(isRequest);
+	public DBStorageReader(boolean isRequest, final List<byte[]> data) {
+		super(isRequest, data);
 	}
 
 	protected InputStream inputStream;
 	protected ByteArrayOutputStream outputStream;
+	protected List<byte[]> data;
 	
 	private static final String DB_DRIVER = "com.mysql.jdbc.Driver";
 	private static final String DB_CONNECTION = "jdbc:mysql://localhost:3306/proxydb";

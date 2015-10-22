@@ -107,14 +107,10 @@ public abstract class StorageWriter  implements Runnable{
 		return sb.toString().getBytes();
 	}
 
-	protected abstract void insertRow(byte[] request);
+	protected abstract void insertRow(byte[] request);	
 	
 	
-	public void run() {
-		pushToStorage(streamFrom);	
-	}
-	
-	public void run1() {	
+	public void run() {	
 		pushToStorage(data);	
 	}
 

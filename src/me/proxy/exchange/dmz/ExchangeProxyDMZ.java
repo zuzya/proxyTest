@@ -161,10 +161,17 @@ public class ExchangeProxyDMZ {
 
         
         StorageWriter writer = new DBStorageWriter(dataList, true);
-        writer.run1();
+        Thread t = new Thread(writer);
+        t.start();
         
-        StorageReader reader = new DBStorageReader(false);
-        output = reader.run1();
+        try {
+			t.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+        
+        StorageReader reader = new DBStorageReader(false, output);
+        output = reader.call();
         
        
         

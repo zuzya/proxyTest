@@ -22,6 +22,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 
 import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Collections;
 
@@ -63,55 +66,78 @@ public class ExchangeProxyServer {
 			  
 			Selector selector = Selector.open();
 			
-			SocketChannel ssc = SocketChannel.open();
+			final SocketChannel ssc = SocketChannel.open();
 	        ssc.connect(new InetSocketAddress(host, remoteport));
 			ssc.configureBlocking( false );
 			ssc.register( selector, SelectionKey.OP_CONNECT ); 
 			
 		
-			
-			StorageReader reader = new DBStorageReader(true);
-			
 			while(true){
 				
-				List<byte[]> data = reader.run1();		
-				 
-				processWrite(ssc, data);   
-		        List<byte[]> result =  processRead(ssc);
-		        
-		        StorageWriter writer = new DBStorageWriter(result, false);
-		        writer.run1();
-			}
-
-           
-			
-		/*	while(true){
-								
-				Set keys = selector.keys();
-				Iterator it = keys.iterator();
+				List<byte[]> data = null;
+				StorageReader reader = new DBStorageReader(true, data);			
+				FutureTask<List<byte[]>> task = new FutureTask(reader);
 				
-				while(it.hasNext()){
-					
-					SelectionKey key = (SelectionKey) it.next();
-					if(key.isAcceptable()){
-						System.out.println("accept");
-						
-					}else
-					
-					if(key.isConnectable()){			
-						
-						connect(key);					
-						
-					} else if(key.isReadable()){
-						processRead(key);
-					} else if(key.isWritable()){
-						processWrite(key, data);
-					}
+				Thread t = new Thread(task);			
+				t.start();
+				try {
+					t.join();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
 				
-			}*/
-		  
-		        
+				try {
+					data = task.get();
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				} catch (ExecutionException e1) {
+					e1.printStackTrace();
+				}
+				
+				final List<byte[]> finaldata = data;
+				 
+				while(true){
+					
+		
+					Thread w = new Thread(){
+						
+						@Override
+						public void run(){
+							try {
+								processWrite(ssc, finaldata);
+							} catch (IOException e) {
+								e.printStackTrace();
+							} 
+						}
+					};
+					
+					w.start();
+					try {
+						w.join(5000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					
+					if(w.isAlive())
+						w.interrupt();
+				  
+			        List<byte[]> result =  processRead(ssc);		               
+			        
+			        if(result.isEmpty()){
+			        	System.out.println("------------------- empty ----------------------");
+			        	break;
+			        }
+			        
+			        StorageWriter writer = new DBStorageWriter(result, false);
+			        writer.run();
+			        
+			      
+				}
+				
+			}
+			
+			
+	
 	 }		  
 		  
 

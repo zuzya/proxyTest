@@ -17,6 +17,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 
 import me.proxy.storage.common.IStorage;
 import me.proxy.storage.common.StorageReader;
@@ -112,23 +114,28 @@ public class ExchangeProxyDMZ {
 
 	private void processOutput(SelectionKey key) throws IOException {
 		
-    	java.nio.channels.SocketChannel channel = (java.nio.channels.SocketChannel) key.channel();
-        List<byte[]> pendingData = output;
-        
-        Iterator<byte[]> items = pendingData.iterator();
-        while (items.hasNext()) {
-            byte[] item = items.next();
-            items.remove();
-            
-            System.out.println(new String(item));
-            channel.write(ByteBuffer.wrap(item));
-        }
-        key.interestOps(SelectionKey.OP_READ);
+		if(output != null && !output.isEmpty()){
+			
+			java.nio.channels.SocketChannel channel = (java.nio.channels.SocketChannel) key.channel();
+	        List<byte[]> pendingData = output;
+	        
+	        Iterator<byte[]> items = pendingData.iterator();
+	        while (items.hasNext()) {
+	            byte[] item = items.next();
+	            items.remove();
+	            
+	            System.out.println(new String(item));
+	            channel.write(ByteBuffer.wrap(item));
+	        }
+	        key.interestOps(SelectionKey.OP_READ);
+		}
+    	
 		
 	}
 
 	private void processInput(SelectionKey key) throws IOException {		
 		
+		output  = null;
 
         SocketChannel sc = (SocketChannel)key.channel();
 	    ByteBuffer buffer = ByteBuffer.allocate(1024);
@@ -170,10 +177,22 @@ public class ExchangeProxyDMZ {
 			e.printStackTrace();
 		}
         
-        StorageReader reader = new DBStorageReader(false, output);
-        output = reader.call();
+        StorageReader reader = new DBStorageReader(false);
+        FutureTask<List<byte[]>> task = new FutureTask(reader);
+        Thread read = new Thread(task);
+        read.start();
+              
         
-       
+        	
+        try {
+        	output = task.get();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
+        
+        
         
         SelectionKey destkey = sc.keyFor(key.selector());
         destkey.interestOps(SelectionKey.OP_WRITE);

@@ -26,8 +26,8 @@ public class DBStorageReader extends StorageReader  {
 		super(streamFrom, isRequest);
 	}
 	
-	public DBStorageReader(boolean isRequest, final List<byte[]> data) {
-		super(isRequest, data);
+	public DBStorageReader(boolean isRequest) {
+		super(isRequest); 
 	}
 
 	protected InputStream inputStream;
@@ -66,7 +66,7 @@ public class DBStorageReader extends StorageReader  {
 			preparedStatement = dbConnection.prepareStatement(insertTableSQL,ResultSet.TYPE_SCROLL_SENSITIVE,
 	                   ResultSet.CONCUR_UPDATABLE);
 	
-			while(true){				
+			while(!Thread.interrupted()){				
 				// execute insert SQL stetement
 				rs = preparedStatement.executeQuery();				
 				
@@ -111,6 +111,13 @@ public class DBStorageReader extends StorageReader  {
 
 		} finally {
 
+			try {
+				outputStream.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
 			if (preparedStatement != null) {
 				try {
 					preparedStatement.close();

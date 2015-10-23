@@ -12,7 +12,6 @@ public abstract class StorageReader implements Callable<List<byte[]>>{
 	
 	protected OutputStream streamTo;
 	protected boolean isRequest;
-	protected List<byte[]> data;
 
 	public StorageReader(OutputStream streamTo, boolean isRequest) {
 		super();
@@ -20,10 +19,9 @@ public abstract class StorageReader implements Callable<List<byte[]>>{
 		this.isRequest = isRequest;
 	}
 	
-	public StorageReader(boolean isRequest, final List<byte[]> data) {
+	public StorageReader(boolean isRequest) {
 		super();
 		this.isRequest = isRequest;
-		this.data = data;
 	}
 	
 	public InputStream getStreamFromStorage(){			
@@ -113,9 +111,11 @@ public abstract class StorageReader implements Callable<List<byte[]>>{
 	protected abstract InputStream readRow();	
 
 	
-	public List<byte[]> call() {		
+	public List<byte[]> call() {	
+				 
 		InputStream streamFrom = getStreamFromStorage();
 		return writeDataFromStorage(streamFrom);
+		
 	}
 
 
